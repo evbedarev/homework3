@@ -11,28 +11,16 @@ public class TerminalImpl {
         this.pinValidator = pinValidator;
     }
 
-    public void run(){
+    public void run() {
         String input;
         Scanner scanner = new Scanner(System.in);
-        for (;;) {
+        for (; ; ) {
             input = scanner.nextLine();
-            if (pinValidator.isAccountIsLocked()) {
-                System.out.println("Account is locked");
-            }
-            else {
-                if (pinValidator.validatePin(input)) {
-                    System.out.println("Pin is valid");
-                    break;
-                } else {
-                    if (pinValidator.getCountInputPin()>=3) {
-                        pinValidator.setAccountIsLocked(true);
-                    } else {
-                        pinValidator.setCountInputPin(pinValidator.getCountInputPin() + 1);
-                        System.out.println("Pin is not valid, please try more...");
-                    }
-                }
+            if (pinValidator.validatePin(input, System.out::println)) {
+                break;
             }
         }
+
     }
 
 

@@ -1,48 +1,74 @@
 import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 
 public class PinValidator {
     private final String pinCode = "1234";
     private int countInputPin =0;
     private boolean accountIsLocked = false;
+    private int timer;
 
-    public boolean validatePin(String userPinCode) {
+    public boolean validatePin(String userPinCode, Consumer<String> consumer) {
+        if (accountIsLocked && countInputPin==3) {
+            consumer.accept("Account is locked. Time left: " + getTimer() + " seconds");
+            return false;
+        }
+        if (userPinCode.equals(pinCode)) {consumer.accept("Pin is valid");}
+
+        else {countEqualThree(System.out::println);}
+
         return userPinCode.equals(pinCode);
     }
 
-    public int getCountInputPin() {
+    private int getCountInputPin() {
         return countInputPin;
     }
 
-    public void setCountInputPin(int countInputPin) {
+    private void setCountInputPin(int countInputPin) {
         this.countInputPin = countInputPin;
     }
 
-    public boolean isAccountIsLocked() {
-        return accountIsLocked;
+    private int getTimer() {
+        return timer;
     }
 
-    public void setAccountIsLocked(boolean accountIsLocked) {
-        this.accountIsLocked = accountIsLocked;
+    private void setAccountIsLocked() {
+        this.accountIsLocked = true;
+
         new Thread(() ->{
+
             try {
-                Thread.sleep(5000);
+
+                for (this.timer=5;this.timer>0;this.timer--) {
+                    Thread.sleep(1000);
+                }
+
                 this.accountIsLocked = false;
-                countInputPin=0;
+                countInputPin = 0;
+
             } catch (InterruptedException v) {
+
                 System.out.println(v);
             }
+
         }).start();
     }
 
-}
+    public void countEqualThree (Consumer<String> consumer) {
 
-//        ActionListener listner = event ->
-//        {
-//            this.accountIsLocked=false;
-//            countInputPin=0;
-//            System.out.println("Account is lock by method setAccountIsLocked");
-//
-//        };
-//        Timer timer = new Timer();
+        if (getCountInputPin() >=3) {
+
+            consumer.accept("Account is locked.");
+            this.setAccountIsLocked();
+
+
+        } else {
+
+            this.setCountInputPin(getCountInputPin() + 1);
+            consumer.accept("Pin is not valid, please try more...");
+        }
+
+    }
+
+}

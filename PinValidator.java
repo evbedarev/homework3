@@ -1,6 +1,3 @@
-import java.awt.event.ActionListener;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 
 public class PinValidator {
@@ -10,15 +7,23 @@ public class PinValidator {
     private int timer;
 
     public boolean validatePin(String userPinCode, Consumer<String> consumer) {
-        if (accountIsLocked && countInputPin==3) {
-            consumer.accept("Account is locked. Time left: " + getTimer() + " seconds");
-            return false;
+        try {
+
+            if (accountIsLocked && countInputPin == 2) {
+                throw new AccountIsLockedException("Account is locked. Time left: " + getTimer() + " seconds");
+            }
+
+            if (userPinCode.equals(pinCode)) {
+                consumer.accept("Pin is valid");
+            } else {
+                countEqualThree(System.out::println);
+            }
+            return userPinCode.equals(pinCode);
+
+        } catch (AccountIsLockedException e) {
+            System.out.println(e.getMessage());
         }
-        if (userPinCode.equals(pinCode)) {consumer.accept("Pin is valid");}
-
-        else {countEqualThree(System.out::println);}
-
-        return userPinCode.equals(pinCode);
+        return false;
     }
 
     private int getCountInputPin() {
@@ -57,7 +62,7 @@ public class PinValidator {
 
     public void countEqualThree (Consumer<String> consumer) {
 
-        if (getCountInputPin() >=3) {
+        if (getCountInputPin() >=2) {
 
             consumer.accept("Account is locked.");
             this.setAccountIsLocked();
@@ -71,4 +76,10 @@ public class PinValidator {
 
     }
 
+}
+
+class AccountIsLockedException extends Exception {
+    public AccountIsLockedException(String s) {
+        super(s);
+    }
 }

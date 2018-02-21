@@ -1,5 +1,3 @@
-import com.sun.corba.se.spi.orb.ParserImplBase;
-
 import java.util.Scanner;
 
 public class TerminalImpl {
@@ -15,13 +13,17 @@ public class TerminalImpl {
         String input;
         Scanner scanner = new Scanner(System.in);
         for (; ; ) {
+            System.out.println("Please enter pin code: ");
             input = scanner.nextLine();
-            if (pinValidator.validatePin(input, System.out::println)) {
-                break;
-            }
+                if (pinValidator.validatePin(input, System.out::println)) {
+                    server.runTerminal(scanner);
+                    break;
+                }
         }
-
     }
+
+
+
 
 
     public static void main(String[] args) {
@@ -29,5 +31,7 @@ public class TerminalImpl {
         terminal.run();
 
     }
+
+
 
 }

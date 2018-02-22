@@ -1,44 +1,44 @@
+import org.omg.CORBA.INTERNAL;
+
 import java.util.Scanner;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 
 public class TerminalServer {
     private int account = 0;
 
-    public int getAccount() {
+    private int getAccount() {
         return account;
     }
 
-    public void setAccount(int account, Consumer<String> consumer) {
-        if (account % 100==0) {
-            this.account += account;
-            consumer.accept("Add " + account + " to your account. Total: " + this.account);
+
+    private void setAccount (Scanner scanner, String message, BiFunction<Integer, Integer, Integer> biFunction) {
+        System.out.println("Please enter value: ");
+
+        String input = scanner.nextLine();
+
+        if (Integer.valueOf(input) % 100==0) {
+
+            this.account = biFunction.apply(this.account, Integer.valueOf(input));
+
+            System.out.println(message + Integer.valueOf(input) +  ". Total: " + this.account);
+
+            scanner.nextLine();
+
         } else {
-            consumer.accept("Enter number multiple one hundred");
+
+            System.out.println("Enter number multiple one hundred");
         }
+
+        System.out.println("Press any key");
     }
 
-    public void setAccountMinus (int account, Consumer<String> consumer) {
-        if (account % 100==0) {
-            this.account -= account;
-            consumer.accept("Withdraw " + account + " . Total: " + this.account);
-        } else {
-            consumer.accept("Enter number multiple one hundred");
-        }
-    }
 
     public void runTerminal(Scanner scanner) {
         for (;;) {
 
-            System.out.println("=====================");
-            System.out.println("Please enter command:");
-            System.out.println("1 - check account");
-            System.out.println("2 - add money");
-            System.out.println("3 - take money");
-            System.out.println("4 - quit");
-            System.out.println("=====================");
-
-
+            menu();
             String input = scanner.nextLine();
+
             if (input.matches("\\d+")) {
 
                 for (Choise ch:Choise.values()) {
@@ -51,35 +51,27 @@ public class TerminalServer {
 
             }
         }
-
     }
 
     public enum Choise {
         ONE("1") {
             public void value(TerminalServer terminalServer, Scanner scanner) {
-                System.out.println(terminalServer.getAccount());
+                System.out.println("On your account: " + terminalServer.getAccount());
                 System.out.println("Press any key");
                 scanner.nextLine();
             }
         },
+
         TWO("2"){
             public void value(TerminalServer terminalServer, Scanner scanner) {
-                System.out.println("Please enter value: ");
-                String input = scanner.nextLine();
-                terminalServer.setAccount(Integer.valueOf(input),System.out::println);
-                System.out.println("Press any key");
-                scanner.nextLine();
+                terminalServer.setAccount(scanner, "Add to your account: ", (x,y) -> x + y);
 
             }
-
         },
+
         THREE("3") {
             public void value(TerminalServer terminalServer, Scanner scanner) {
-                System.out.println("Please enter value: ");
-                String input = scanner.nextLine();
-                terminalServer.setAccountMinus(Integer.valueOf(input),System.out::println);
-                System.out.println("Press any key");
-                scanner.nextLine();
+                terminalServer.setAccount(scanner, "Withdraw from your account: ", (x,y) -> x - y);
             }
         };
 
@@ -90,6 +82,16 @@ public class TerminalServer {
         }
 
         public abstract void value(TerminalServer terminalServer, Scanner scanner);
+    }
+
+    private final void menu() {
+        System.out.println("=====================");
+        System.out.println("Please enter command:");
+        System.out.println("1 - check account");
+        System.out.println("2 - add money");
+        System.out.println("3 - take money");
+        System.out.println("4 - quit");
+        System.out.println("=====================");
     }
 
 

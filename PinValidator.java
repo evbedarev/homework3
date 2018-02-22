@@ -1,4 +1,3 @@
-import java.util.function.Consumer;
 
 public class PinValidator {
     private final String pinCode = "1234";
@@ -6,7 +5,7 @@ public class PinValidator {
     private boolean accountIsLocked = false;
     private int timer;
 
-    public boolean validatePin(String userPinCode, Consumer<String> consumer) {
+    public boolean validatePin(String userPinCode) {
         try {
 
             if (accountIsLocked && countInputPin == 2) {
@@ -14,9 +13,9 @@ public class PinValidator {
             }
 
             if (userPinCode.equals(pinCode)) {
-                consumer.accept("Pin is valid");
+                System.out.println("Pin is valid");
             } else {
-                countEqualThree(System.out::println);
+                countEqualThree();
             }
             return userPinCode.equals(pinCode);
 
@@ -60,18 +59,18 @@ public class PinValidator {
         }).start();
     }
 
-    public void countEqualThree (Consumer<String> consumer) {
+    private void countEqualThree () {
 
         if (getCountInputPin() >=2) {
 
-            consumer.accept("Account is locked.");
+            System.out.println("Account is locked.");
             this.setAccountIsLocked();
 
 
         } else {
 
             this.setCountInputPin(getCountInputPin() + 1);
-            consumer.accept("Pin is not valid, please try more...");
+            System.out.println("Pin is not valid, please try more...");
         }
 
     }
@@ -79,7 +78,7 @@ public class PinValidator {
 }
 
 class AccountIsLockedException extends Exception {
-    public AccountIsLockedException(String s) {
+    AccountIsLockedException(String s) {
         super(s);
     }
 }

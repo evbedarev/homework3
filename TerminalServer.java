@@ -1,18 +1,24 @@
 import org.omg.CORBA.INTERNAL;
 
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
 public class TerminalServer {
     private int account = 0;
+    private ShowMessage showMessage = new ShowMessage(this);
+    RandomException randomException = new RandomException();
 
-    private int getAccount() {
+    protected int getAccount() {
         return account;
     }
 
-
+/*
+*Метод проверяющий кратность введенного числа ста, считающий операции.
+*
+ */
     private void setAccount (Scanner scanner, String message, BiFunction<Integer, Integer, Integer> biFunction) {
-        System.out.println("Please enter value: ");
+        showMessage.print("Please enter value: ");
 
         String input = scanner.nextLine();
 
@@ -20,34 +26,55 @@ public class TerminalServer {
 
             this.account = biFunction.apply(this.account, Integer.valueOf(input));
 
-            System.out.println(message + Integer.valueOf(input) +  ". Total: " + this.account);
+            showMessage.print(message + Integer.valueOf(input) +  ". Total: " + this.account);
 
             scanner.nextLine();
 
         } else {
 
-            System.out.println("Enter number multiple one hundred");
+            showMessage.print("Enter number multiple one hundred");
         }
 
-        System.out.println("Press any key");
+        showMessage.printPressAnyKey();
     }
+/*
+Основной метод терминала, бесконечный цикл с выходом если пользователь ввёл 4.
+Сравнивает введенное значение со значением enum, если значения совпадает вызывается метод enum.value
+Пробрасывает NetworkProblemException
+ */
 
 
-    public void runTerminal(Scanner scanner) {
+    public void runTerminal (Scanner scanner) throws Exception {
+
+
         for (;;) {
 
-            menu();
-            String input = scanner.nextLine();
+            try {
 
-            if (input.matches("\\d+")) {
+                randomException.random();
+                showMessage.menu(); //Отображает меню.
+                String input = scanner.nextLine();
 
-                for (Choise ch:Choise.values()) {
-                    if (ch.num.equals(input)) {
-                        ch.value(this, scanner);
+                if (input.matches("[1234]")) {
+
+                    for (Choise ch : Choise.values()) {
+                        if (ch.num.equals(input)) {
+                            ch.value(this, scanner);
+                        }
                     }
+
+                    if (input.equals("4")) {
+                        break;
+                    }
+
+                } else {
+
+                    showMessage.print("Not valid input. Please enter a number between 1 and 4");
                 }
 
-                if (input.equals("4")) {break;}
+            } catch (NumberFormatException e) {
+
+                sleep("Error. Please enter nubmer");
 
             }
         }
@@ -56,8 +83,8 @@ public class TerminalServer {
     public enum Choise {
         ONE("1") {
             public void value(TerminalServer terminalServer, Scanner scanner) {
-                System.out.println("On your account: " + terminalServer.getAccount());
-                System.out.println("Press any key");
+                terminalServer.showMessage.print("On your account: " + terminalServer.getAccount());
+                terminalServer.showMessage.printPressAnyKey();
                 scanner.nextLine();
             }
         },
@@ -84,15 +111,17 @@ public class TerminalServer {
         public abstract void value(TerminalServer terminalServer, Scanner scanner);
     }
 
-    private final void menu() {
-        System.out.println("=====================");
-        System.out.println("Please enter command:");
-        System.out.println("1 - check account");
-        System.out.println("2 - add money");
-        System.out.println("3 - take money");
-        System.out.println("4 - quit");
-        System.out.println("=====================");
+
+    public final void sleep(String msg) {
+        try {
+            System.out.println(msg);
+            Thread.sleep(3000);
+        } catch (InterruptedException v) {
+            System.out.println(v);
+        }
+
     }
 
-
 }
+
+

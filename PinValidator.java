@@ -5,6 +5,11 @@ public class PinValidator {
     private boolean accountIsLocked = false;
     private int timer;
 
+/*
+*Проверка пина. Если аккаунт заблокирован и счётчик неудачных попыток равен 2 генерирует искючение.
+* Если введен неверно пин <3 вызывает метод countEqualThree
+* Если введен верно возвращает True
+ */
     public boolean validatePin(String userPinCode) {
         try {
 
@@ -13,14 +18,18 @@ public class PinValidator {
             }
 
             if (userPinCode.equals(pinCode)) {
+
                 System.out.println("Pin is valid");
+
             } else {
+
                 countEqualThree();
             }
             return userPinCode.equals(pinCode);
 
         } catch (AccountIsLockedException e) {
-            System.out.println(e.getMessage());
+
+            System.out.println(e.getStackTrace());
         }
         return false;
     }
@@ -36,6 +45,12 @@ public class PinValidator {
     private int getTimer() {
         return timer;
     }
+
+    /*
+    *Устанавливает значение accountIsLocked = true. Создает отдельный поток таймера, который
+    * каждую секунду декрементирует переменную timer.
+    *
+     */
 
     private void setAccountIsLocked() {
         this.accountIsLocked = true;
@@ -59,6 +74,11 @@ public class PinValidator {
         }).start();
     }
 
+    /*
+    *Проверяет счётчик неудачных попыток ввода пина. Если равен 2 то выдает сообщение и запускает
+    * метод setAccountIsLocked(). В ином случает инкрементирует счётчик и выдает сообщение
+    *
+     */
     private void countEqualThree () {
 
         if (getCountInputPin() >=2) {
